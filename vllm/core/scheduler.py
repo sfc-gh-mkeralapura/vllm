@@ -1100,7 +1100,6 @@ class Scheduler:
         # This function call changes the internal states of the scheduler
         # such as self.running, self.swapped, and self.waiting.
         scheduler_start_time = time.perf_counter()
-
         scheduler_outputs = self._schedule()
         now = time.time()
 
