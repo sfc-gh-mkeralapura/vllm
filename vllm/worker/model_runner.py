@@ -1563,9 +1563,9 @@ class ModelRunner(GPUModelRunnerBase[ModelInputForGPUWithSamplingMetadata]):
                 orig_model_forward_time = 0.0
                 if intermediate_tensors is not None:
                     orig_model_forward_time = intermediate_tensors.tensors.get(
-                        "model_forward_time", torch.tensor(0.0)).item()
+                        "model_forward_time", 0.0)
                 hidden_or_intermediate_states.tensors["model_forward_time"] = (
-                    torch.tensor(model_forward_time + orig_model_forward_time))
+                    model_forward_time + orig_model_forward_time)
             return hidden_or_intermediate_states
 
         logits = self.model.compute_logits(hidden_or_intermediate_states,
@@ -1588,7 +1588,7 @@ class ModelRunner(GPUModelRunnerBase[ModelInputForGPUWithSamplingMetadata]):
             orig_model_forward_time = 0.0
             if intermediate_tensors is not None:
                 orig_model_forward_time = intermediate_tensors.tensors.get(
-                    "model_forward_time", torch.tensor(0.0)).item()
+                    "model_forward_time", 0.0)
             # If there are multiple workers, we are still tracking the latency
             # from the start time of the driver worker to the end time of the
             # driver worker. The model forward time will then end up covering
