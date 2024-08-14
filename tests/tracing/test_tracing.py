@@ -1,3 +1,4 @@
+import asyncio
 import os
 import threading
 from concurrent import futures
@@ -14,7 +15,10 @@ from opentelemetry.sdk.environment_variables import (
     OTEL_EXPORTER_OTLP_TRACES_INSECURE)
 
 from vllm import LLM, SamplingParams
+from vllm.engine.async_llm_engine import AsyncEngineArgs, AsyncLLMEngine
 from vllm.tracing import SpanAttributes
+
+from ..utils import fork_new_process_for_each_test
 
 FAKE_TRACE_SERVER_ADDRESS = "localhost:4317"
 
@@ -67,7 +71,9 @@ def trace_service():
     server.stop(None)
 
 
-def test_traces(trace_service):
+@fork_new_process_for_each_test
+def test_traces(request):
+    trace_service = request.getfixturevalue('trace_service')
     os.environ[OTEL_EXPORTER_OTLP_TRACES_INSECURE] = "true"
 
     sampling_params = SamplingParams(temperature=0.01,
@@ -123,20 +129,36 @@ def test_traces(trace_service):
     assert metrics.model_execute_time is None
 
 
-def test_traces_with_detailed_steps(trace_service):
+@pytest.mark.parametrize("use_pp", [True, False])
+@fork_new_process_for_each_test
+def test_traces_with_detailed_steps(request, use_pp):
+    trace_service = request.getfixturevalue('trace_service')
+    asyncio.run(_test_traces_with_detailed_steps(trace_service, use_pp))
+
+
+async def _test_traces_with_detailed_steps(trace_service, use_pp):
     os.environ[OTEL_EXPORTER_OTLP_TRACES_INSECURE] = "true"
 
     sampling_params = SamplingParams(temperature=0.01,
                                      top_p=0.1,
                                      max_tokens=256)
-    model = "facebook/opt-125m"
-    llm = LLM(
+    model = "facebook/opt-125m" if not use_pp else "JackFram/llama-160m"
+    pp_size = 1 if not use_pp else 2
+    engine_args = AsyncEngineArgs(
         model=model,
         otlp_traces_endpoint=FAKE_TRACE_SERVER_ADDRESS,
         collect_detailed_traces="all",
+        pipeline_parallel_size=pp_size,
     )
-    prompts = ["This is a short prompt"]
-    outputs = llm.generate(prompts, sampling_params=sampling_params)
+    async_engine = AsyncLLMEngine.from_engine_args(engine_args)
+    prompt = "This is a short prompt"
+    request_id = f"test_{use_pp}"
+    outputs_generator = async_engine.generate(prompt,
+                                              request_id=request_id,
+                                              sampling_params=sampling_params)
+    outputs = []
+    async for request_output in outputs_generator:
+        outputs.append(request_output)
 
     timeout = 5
     if not trace_service.evt.wait(timeout):
