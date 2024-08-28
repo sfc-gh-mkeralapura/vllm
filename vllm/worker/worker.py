@@ -128,6 +128,10 @@ class Worker(LocalOrDistributedWorkerBase):
                     torch.profiler.ProfilerActivity.CPU,
                     torch.profiler.ProfilerActivity.CUDA,
                 ],
+                schedule=torch.profiler.schedule(
+                   wait=10,
+                   warmup=1,
+                   active=2),
                 with_stack=False,
                 on_trace_ready=torch.profiler.tensorboard_trace_handler(
                     torch_profiler_trace_dir, use_gzip=True))
