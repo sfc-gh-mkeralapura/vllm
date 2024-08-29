@@ -152,8 +152,9 @@ class Worker(LocalOrDistributedWorkerBase):
     def stop_profile(self):
         if self.profiler is None:
             raise RuntimeError("Profiler is not enabled.")
-        self.profiler.stop()
         self.profiler.step()
+        self.profiler.stop()
+        
 
     def _is_encoder_decoder_model(self):
         return self.model_config.is_encoder_decoder_model
