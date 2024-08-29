@@ -120,6 +120,10 @@ class Worker(LocalOrDistributedWorkerBase):
         # Torch profiler. Enabled and configured through env vars:
         # VLLM_TORCH_PROFILER_DIR=/path/to/save/trace
         if envs.VLLM_TORCH_PROFILER_DIR:
+            def trace_handler(prof):
+                print(prof.key_averages().table(
+                    sort_by="self_cuda_time_total", row_limit=-1))
+    
             torch_profiler_trace_dir = envs.VLLM_TORCH_PROFILER_DIR
             logger.info("Profiling enabled. Traces will be saved to: %s",
                         torch_profiler_trace_dir)
@@ -133,8 +137,7 @@ class Worker(LocalOrDistributedWorkerBase):
                    warmup=1,
                    active=2),
                 with_stack=False,
-                on_trace_ready=torch.profiler.tensorboard_trace_handler(
-                    torch_profiler_trace_dir, use_gzip=True))
+                on_trace_ready=trace_handler)
         else:
             self.profiler = None
 
