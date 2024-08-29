@@ -139,7 +139,6 @@ class Worker(LocalOrDistributedWorkerBase):
                 with_stack=False,
                 record_shapes=False,
                 profile_memory=False,
-                acc_events=True,
                 on_trace_ready=trace_handler)
         else:
             self.profiler = None
