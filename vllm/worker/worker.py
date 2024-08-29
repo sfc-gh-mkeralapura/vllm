@@ -147,12 +147,10 @@ class Worker(LocalOrDistributedWorkerBase):
         if self.profiler is None:
             raise RuntimeError("Profiler is not enabled.")
         self.profiler.start()
-        self.profiler.step()
 
     def stop_profile(self):
         if self.profiler is None:
             raise RuntimeError("Profiler is not enabled.")
-        self.profiler.step()
         self.profiler.stop()
         
 
@@ -323,7 +321,7 @@ class Worker(LocalOrDistributedWorkerBase):
         blocks_to_copy = torch.tensor(execute_model_req.blocks_to_copy,
                                       device=self.device,
                                       dtype=torch.int64).view(-1, 2)
-
+        self.profiler.step()
         return WorkerInput(
             num_seq_groups=num_seq_groups,
             blocks_to_swap_in=blocks_to_swap_in,
