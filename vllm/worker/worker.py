@@ -125,7 +125,7 @@ class Worker(LocalOrDistributedWorkerBase):
             def trace_handler(prof):
                 traceback.print_stack()
                 print(prof.key_averages().table(
-                    sort_by="self_cuda_time_total", row_limit=-1))
+                    sort_by="self_cuda_time_total", row_limit=10))
     
             torch_profiler_trace_dir = envs.VLLM_TORCH_PROFILER_DIR
             logger.info("Profiling enabled. Traces will be saved to: %s",
@@ -135,10 +135,6 @@ class Worker(LocalOrDistributedWorkerBase):
                     torch.profiler.ProfilerActivity.CPU,
                     torch.profiler.ProfilerActivity.CUDA,
                 ],
-                schedule=torch.profiler.schedule(
-                   wait=0,
-                   warmup=0,
-                   active=2),
                 with_stack=False,
                 record_shapes=False,
                 profile_memory=False,
@@ -150,7 +146,6 @@ class Worker(LocalOrDistributedWorkerBase):
         if self.profiler is None:
             raise RuntimeError("Profiler is not enabled.")
         self.profiler.start()
-        self.profiler.step()
 
     def stop_profile(self):
         if self.profiler is None:
