@@ -137,6 +137,9 @@ class Worker(LocalOrDistributedWorkerBase):
                    warmup=1,
                    active=2),
                 with_stack=False,
+                record_shapes=False,
+                profile_memory=False,
+                acc_events=True,
                 on_trace_ready=trace_handler)
         else:
             self.profiler = None
@@ -145,11 +148,13 @@ class Worker(LocalOrDistributedWorkerBase):
         if self.profiler is None:
             raise RuntimeError("Profiler is not enabled.")
         self.profiler.start()
+        self.profiler.step()
 
     def stop_profile(self):
         if self.profiler is None:
             raise RuntimeError("Profiler is not enabled.")
         self.profiler.stop()
+        self.profiler.step()
 
     def _is_encoder_decoder_model(self):
         return self.model_config.is_encoder_decoder_model
@@ -331,7 +336,6 @@ class Worker(LocalOrDistributedWorkerBase):
     @torch.inference_mode()
     def execute_worker(self, worker_input: WorkerInput) -> None:
         virtual_engine = worker_input.virtual_engine
-        self.profiler.step()
         # Issue cache operations.
         if (worker_input.blocks_to_swap_in is not None
                 and worker_input.blocks_to_swap_in.numel() > 0):
