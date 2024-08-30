@@ -133,10 +133,8 @@ class Worker(LocalOrDistributedWorkerBase):
                         torch_profiler_trace_dir)
             self.profiler = torch.profiler.profile(
                 activities=[
-                    torch.profiler.ProfilerActivity.CPU,
                     torch.profiler.ProfilerActivity.CUDA,
                 ],
-                schedule=torch.profiler.schedule(wait=0, warmup=1, active=1),
                 with_stack=False,
                 record_shapes=False,
                 profile_memory=False,
@@ -305,8 +303,6 @@ class Worker(LocalOrDistributedWorkerBase):
     @torch.inference_mode()
     def prepare_worker_input(
             self, execute_model_req: ExecuteModelRequest) -> WorkerInput:
-        if random.randint(0, 10) < 1:
-            self.profiler.step()
         virtual_engine = execute_model_req.virtual_engine
         num_steps = execute_model_req.num_steps
         num_seq_groups = len(execute_model_req.seq_group_metadata_list)
