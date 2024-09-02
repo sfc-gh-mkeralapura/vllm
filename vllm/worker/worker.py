@@ -126,7 +126,10 @@ class Worker(LocalOrDistributedWorkerBase):
             def trace_handler(prof):
                 traceback.print_stack()
                 print(prof.key_averages().table(
-                    sort_by="self_cuda_time_total", row_limit=10))
+                    sort_by="self_cuda_time_total",
+                    row_limit=10,
+                    max_src_column_width=120,
+                    max_name_column_width=120))
     
             torch_profiler_trace_dir = envs.VLLM_TORCH_PROFILER_DIR
             logger.info("Profiling enabled. Traces will be saved to: %s",
