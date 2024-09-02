@@ -138,7 +138,6 @@ class Worker(LocalOrDistributedWorkerBase):
                 with_stack=False,
                 record_shapes=False,
                 profile_memory=False,
-                schedule=torch.profiler.schedule(wait=100, warmup=1, active=1),
                 on_trace_ready=trace_handler)
         else:
             self.profiler = None
@@ -304,7 +303,6 @@ class Worker(LocalOrDistributedWorkerBase):
     @torch.inference_mode()
     def prepare_worker_input(
             self, execute_model_req: ExecuteModelRequest) -> WorkerInput:
-        self.profiler.step()
         virtual_engine = execute_model_req.virtual_engine
         num_steps = execute_model_req.num_steps
         num_seq_groups = len(execute_model_req.seq_group_metadata_list)
