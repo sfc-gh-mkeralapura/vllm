@@ -135,12 +135,12 @@ class Worker(LocalOrDistributedWorkerBase):
             self.profiler = None
 
     def start_profile(self):
-        if self.profiler is None:
+        if self.is_driver_worker and self.profiler is None:
             raise RuntimeError("Profiler is not enabled.")
         self.profiler.start()
 
     def stop_profile(self):
-        if self.profiler is None:
+        if self.is_driver_worker and self.profiler is None:
             raise RuntimeError("Profiler is not enabled.")
         self.profiler.stop()
 
