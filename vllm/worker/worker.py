@@ -333,7 +333,8 @@ class Worker(LocalOrDistributedWorkerBase):
 
     @torch.inference_mode()
     def execute_worker(self, worker_input: WorkerInput) -> None:
-        print("execute_worker(" + type(self).__name__ + ")")
+        if self.is_driver_worker:
+            self.profiler.step()
         virtual_engine = worker_input.virtual_engine
         # Issue cache operations.
         if (worker_input.blocks_to_swap_in is not None
