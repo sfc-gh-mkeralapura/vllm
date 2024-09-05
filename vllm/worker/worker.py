@@ -350,6 +350,7 @@ class Worker(LocalOrDistributedWorkerBase):
     @torch.inference_mode()
     def profiler_step(self) -> None:
         if self.profiler is not None:
+            print("Profiler step...")
             self.profiler.step()
 
     def _get_cached_seq_group_metadata(
