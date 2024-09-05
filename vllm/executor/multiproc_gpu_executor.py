@@ -160,7 +160,7 @@ class MultiprocessingGPUExecutor(DistributedGPUExecutor):
         """
         if execute_model_req is not None:
             execute_model_req.should_step_profiler = True
-            print("setting should_step_profiler to True")
+            print("mge.setting should_step_profiler to True")
         ret = self.driver_worker.execute_model(execute_model_req)
         if execute_model_req is not None:
             execute_model_req.should_step_profiler = False

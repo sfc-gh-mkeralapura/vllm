@@ -318,8 +318,14 @@ class RayGPUExecutor(DistributedGPUExecutor):
         """
         assert not self.use_ray_spmd_worker, (
             "driver_worker does not exist for VLLM_USE_RAY_SPMD_WORKER=1")
-        return self.driver_worker.execute_method("execute_model",
+        if execute_model_req is not None:
+            execute_model_req.should_step_profiler = True
+            print("rge.setting should_step_profiler to True")
+        ret = self.driver_worker.execute_method("execute_model",
                                                  execute_model_req)
+        if execute_model_req is not None:
+            execute_model_req.should_step_profiler = False
+        return ret
 
     def execute_model(
             self,
