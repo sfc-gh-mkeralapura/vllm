@@ -315,7 +315,7 @@ class LocalOrDistributedWorkerBase(WorkerBase):
         num_steps = worker_input.num_steps
 
         self.execute_worker(worker_input)
-        if execute_model_req.should_step_profiler:
+        if execute_model_req is not None and execute_model_req.should_step_profiler:
             self.profiler_step()
         
         # If there is no input, we don't need to execute the model.
