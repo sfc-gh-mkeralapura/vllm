@@ -333,8 +333,7 @@ class Worker(LocalOrDistributedWorkerBase):
 
     @torch.inference_mode()
     def execute_worker(self, worker_input: WorkerInput) -> None:
-        if random.random() < 0.01:
-            traceback.print_stack()
+        print("execute_worker(" + type(self).__name__ + ")")
         virtual_engine = worker_input.virtual_engine
         # Issue cache operations.
         if (worker_input.blocks_to_swap_in is not None
