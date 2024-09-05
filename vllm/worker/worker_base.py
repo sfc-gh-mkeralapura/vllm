@@ -221,6 +221,13 @@ class LocalOrDistributedWorkerBase(WorkerBase):
         """
         raise NotImplementedError
 
+    @abstractmethod
+    def profiler_step(self) -> None:
+        """
+        Process an execution request.
+        """
+        raise NotImplementedError
+    
     def _get_worker_input_from_broadcast(
         self
     ) -> Optional[Tuple[BroadcastableModelInput, WorkerInput, Dict[
@@ -303,12 +310,14 @@ class LocalOrDistributedWorkerBase(WorkerBase):
         inputs = self.prepare_input(execute_model_req)
         if inputs is None:
             return None
-
+        
         model_input, worker_input, kwargs = inputs
         num_steps = worker_input.num_steps
 
         self.execute_worker(worker_input)
-
+        if execute_model_req.should_step_profiler:
+            self.profiler_step()
+        
         # If there is no input, we don't need to execute the model.
         if worker_input.num_seq_groups == 0:
             return []
