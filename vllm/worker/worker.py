@@ -124,7 +124,6 @@ class Worker(LocalOrDistributedWorkerBase):
         # VLLM_TORCH_PROFILER_DIR=/path/to/save/trace
         if envs.VLLM_TORCH_PROFILER_DIR:
             def trace_handler(prof):
-                traceback.print_stack()
                 print(prof.key_averages().table(
                     sort_by="self_cuda_time_total",
                     row_limit=10))
