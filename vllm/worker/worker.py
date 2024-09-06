@@ -332,7 +332,7 @@ class Worker(LocalOrDistributedWorkerBase):
 
     @torch.inference_mode()
     def execute_worker(self, worker_input: WorkerInput) -> None:
-        if self.is_driver_worker:
+        if self.is_driver_worker and self.profiler is not None:
             self.profiler.step()
         virtual_engine = worker_input.virtual_engine
         # Issue cache operations.
