@@ -124,9 +124,10 @@ class Worker(LocalOrDistributedWorkerBase):
         # VLLM_TORCH_PROFILER_DIR=/path/to/save/trace
         if envs.VLLM_TORCH_PROFILER_DIR:
             def trace_handler(prof):
-                print(prof.key_averages().table(
-                    sort_by="self_cuda_time_total",
-                    row_limit=10))
+                print("trace handler called...")
+                #print(prof.key_averages().table(
+                #    sort_by="self_cuda_time_total",
+                #    row_limit=10))
     
             torch_profiler_trace_dir = envs.VLLM_TORCH_PROFILER_DIR
             logger.info("Profiling enabled. Traces will be saved to: %s",
@@ -138,7 +139,7 @@ class Worker(LocalOrDistributedWorkerBase):
                 with_stack=False,
                 record_shapes=False,
                 profile_memory=False,
-                schedule=torch.profiler.schedule(wait=10, warmup=1, active=1),
+                schedule=torch.profiler.schedule(wait=100, warmup=1, active=1),
                 on_trace_ready=trace_handler)
         else:
             self.profiler = None
