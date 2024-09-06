@@ -135,14 +135,16 @@ class Worker(LocalOrDistributedWorkerBase):
             self.profiler = None
 
     def start_profile(self):
-        if self.is_driver_worker and self.profiler is None:
+        if self.profiler is None:
             raise RuntimeError("Profiler is not enabled.")
-        self.profiler.start()
+        if self.is_driver_worker:
+            self.profiler.start()
 
     def stop_profile(self):
-        if self.is_driver_worker and self.profiler is None:
+        if self.profiler is None:
             raise RuntimeError("Profiler is not enabled.")
-        self.profiler.stop()
+        if self.is_driver_worker:
+            self.profiler.stop()
 
     def _is_encoder_decoder_model(self):
         return self.model_config.is_encoder_decoder_model
